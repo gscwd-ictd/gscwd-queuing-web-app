@@ -1,0 +1,31 @@
+import { AccountStatus, Role } from "@prisma/client";
+import { Route } from "./route";
+
+export type User = {
+  id: string;
+  position: string;
+  dateCreated: Date;
+  dateUpdated: Date;
+  departmentId: string | null;
+  firstName: string;
+  middleName: string | null;
+  lastName: string;
+  nameExtension: string | null;
+  email: string;
+  password: string;
+  imageUrl: string | null;
+  role: Role;
+  assignedTransactionId: string | null;
+  lastLogin: Date | null;
+  accountStatus: AccountStatus;
+  startTransactionHotkey: string | null;
+  transferHotkey: string | null;
+  completeTransactionHotkey: string | null;
+  ringHotkey: string | null;
+  markAsLapsedHotkey: string | null;
+  nextTicketHotkey: string | null;
+  nextLapsedTicketHotkey: string | null;
+  nextSpecialTicketHotkey: string | null;
+  nextLapsedSpecialTicketHotkey: string | null;
+  allowedRoutes: Route["path"][];
+};

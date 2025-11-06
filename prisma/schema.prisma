@@ -1,0 +1,185 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model QueuingTicket {
+  id                     String        @id @default(uuid())
+  number                 String
+  position               Int
+  queuingStatus          QueuingStatus @default(PENDING)
+  isPrioritized          Boolean       @default(false)
+  dateCreated            DateTime      @default(now())
+  dateUpdated            DateTime      @updatedAt
+  transactionId          String
+  counterId              String?
+  userId                 String?
+  serviceTypeId          String?
+  otherServiceType       String?
+  departmentId           String?
+  dateTransactionStarted DateTime?
+  dateTransactionEnded   DateTime?
+  remarks                String?
+  timesTicketLapsed      Int           @default(0)
+  transferredTo          String?
+  transferredBy          String?
+  counter                Counter?      @relation(fields: [counterId], references: [id])
+  department             Department?   @relation(fields: [departmentId], references: [id])
+  serviceType            ServiceType?  @relation(fields: [serviceTypeId], references: [id])
+  transaction            Transaction   @relation(fields: [transactionId], references: [id])
+  transferredByUser      User?         @relation("TicketTransferredByUser", fields: [transferredBy], references: [id])
+  transferredToUser      User?         @relation("TicketTransferredToUser", fields: [transferredTo], references: [id])
+  user                   User?         @relation(fields: [userId], references: [id])
+
+  @@index([dateCreated])
+}
+
+model Transaction {
+  id             String          @id @default(uuid())
+  code           String          @unique
+  name           String
+  dateCreated    DateTime        @default(now())
+  dateUpdated    DateTime        @updatedAt
+  supervisorId   String?         @unique
+  departmentId   String
+  counters       Counter[]
+  queuingTickets QueuingTicket[]
+  serviceTypes   ServiceType[]
+  department     Department      @relation(fields: [departmentId], references: [id])
+  supervisor     User?           @relation("TransactionSupervisor", fields: [supervisorId], references: [id])
+  users          User[]
+
+  @@index([departmentId])
+}
+
+model ServiceType {
+  id             String          @id @default(uuid())
+  name           String
+  transactionId  String
+  departmentId   String
+  dateCreated    DateTime        @default(now())
+  dateUpdated    DateTime        @updatedAt
+  queuingTickets QueuingTicket[]
+  department     Department      @relation(fields: [departmentId], references: [id])
+  transaction    Transaction     @relation(fields: [transactionId], references: [id])
+}
+
+model Counter {
+  id             String          @id @default(uuid())
+  name           String
+  code           String          @unique
+  transactionId  String
+  departmentId   String
+  dateCreated    DateTime        @default(now())
+  dateUpdated    DateTime        @updatedAt
+  department     Department      @relation(fields: [departmentId], references: [id])
+  transaction    Transaction     @relation(fields: [transactionId], references: [id])
+  queuingTickets QueuingTicket[]
+  userSession    UserSession?
+
+  @@unique([departmentId, code])
+}
+
+model Department {
+  id             String          @id @default(uuid())
+  name           String
+  code           String?
+  managerId      String?         @unique
+  manager        User?           @relation("DepartmentManager", fields: [managerId], references: [id])
+  counters       Counter[]
+  queuingTickets QueuingTicket[]
+  serviceTypes   ServiceType[]
+  transactions   Transaction[]
+  users          User[]
+}
+
+model User {
+  id                            String          @id @default(uuid())
+  firstName                     String
+  middleName                    String?
+  lastName                      String
+  nameExtension                 String?
+  email                         String          @unique
+  password                      String
+  imageUrl                      String?
+  position                      String
+  role                          Role            @default(user)
+  assignedTransactionId         String?
+  departmentId                  String?
+  dateCreated                   DateTime        @default(now())
+  dateUpdated                   DateTime        @updatedAt
+  lastLogin                     DateTime?
+  accountStatus                 AccountStatus   @default(active)
+  startTransactionHotkey        String?         @db.VarChar(20)
+  transferHotkey                String?         @db.VarChar(20)
+  completeTransactionHotkey     String?         @db.VarChar(20)
+  ringHotkey                    String?         @db.VarChar(20)
+  markAsLapsedHotkey            String?         @db.VarChar(20)
+  nextTicketHotkey              String?         @db.VarChar(20)
+  nextLapsedTicketHotkey        String?         @db.VarChar(20)
+  nextSpecialTicketHotkey       String?         @db.VarChar(20)
+  nextLapsedSpecialTicketHotkey String?         @db.VarChar(20)
+  ticketsTransferredBy          QueuingTicket[] @relation("TicketTransferredByUser")
+  ticketsTransferredTo          QueuingTicket[] @relation("TicketTransferredToUser")
+  queuingTickets                QueuingTicket[]
+  transactions                  Transaction?    @relation("TransactionSupervisor")
+  assignedTransaction           Transaction?    @relation(fields: [assignedTransactionId], references: [id])
+  department                    Department?     @relation(fields: [departmentId], references: [id])
+  managedDepartment             Department?     @relation("DepartmentManager")
+  userSessions                  UserSession[]
+  allowedRoutes                 String[]        @default(["/home","/notifications"])
+
+  @@index([departmentId])
+  @@index([role])
+}
+
+model UserSession {
+  id        String    @id @default(uuid())
+  userId    String
+  counterId String    @unique
+  expiresAt DateTime? @db.Timestamptz(6)
+  counter   Counter   @relation(fields: [counterId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
+}
+
+model Route {
+  id   String @id @default(uuid())
+  path String @unique
+  name String
+}
+
+model Screensaver {
+  id          String   @id @default(uuid())
+  title       String
+  imageUrl    String
+  isActive    Boolean  @default(true)
+  order       Int      @default(0)
+  dateCreated DateTime @default(now())
+  dateUpdated DateTime @updatedAt
+}
+
+enum QueuingStatus {
+  PENDING
+  CALLED
+  NOW_SERVING
+  LAPSED
+  TRANSFERRED
+  CANCELLED
+  COMPLETED
+}
+
+enum Role {
+  user
+  superuser
+  admin
+  superadmin
+}
+
+enum AccountStatus {
+  active
+  inactive
+}
