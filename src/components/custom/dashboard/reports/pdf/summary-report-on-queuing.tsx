@@ -76,12 +76,12 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginLeft: 30,
     marginRight: 30,
-    width: "80%",
+    width: "95%",
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
     alignSelf: "center",
-    fontSize: 11,
+    fontSize: 10,
     minHeight: 20,
     padding: 3,
   },
@@ -193,7 +193,13 @@ const LaneSection = ({ laneName, laneData }: any) => {
           paddingVertical: 4,
         }}
       >
-        <Text style={{ flex: 2, fontSize: 10, fontWeight: "bold" }}>
+        <Text
+          style={{
+            flex: 2,
+            fontSize: 10,
+            fontWeight: "bold",
+          }}
+        >
           Service Type
         </Text>
         <Text
@@ -233,7 +239,15 @@ const LaneSection = ({ laneName, laneData }: any) => {
       ))}
 
       {/* Lane Total */}
-      <View style={{ flexDirection: "row", paddingVertical: 4 }}>
+      <View
+        style={{
+          flexDirection: "row",
+          paddingVertical: 4,
+          borderBottom: "1pt solid #000",
+          borderLeft: "1pt solid #000",
+          borderRight: "1pt solid #000",
+        }}
+      >
         <Text style={{ flex: 2, fontSize: 10, fontWeight: "bold" }}>Total</Text>
         <Text
           style={{
