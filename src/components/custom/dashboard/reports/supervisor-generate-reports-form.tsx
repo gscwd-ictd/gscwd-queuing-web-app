@@ -130,7 +130,7 @@ export function SupervisorGenerateReportForm() {
       startDate: undefined,
       endDate: undefined,
       reportType: undefined,
-      serviceType: undefined,
+      serviceType: "",
     });
   };
 
