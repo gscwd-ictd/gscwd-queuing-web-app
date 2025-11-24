@@ -78,7 +78,11 @@ export const AppSidebarFooter: FunctionComponent = () => {
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src={session?.user?.imageUrl ?? ""} alt={""} />
+                  <AvatarImage
+                    src={`${process.env.NEXT_PUBLIC_EMPLOYEE_AVATARS}/${
+                      session?.user.imageUrl ?? ""
+                    }`}
+                  />
                   <AvatarFallback className="rounded-lg">
                     {session?.user?.firstName?.[0]}
                     {session?.user?.lastName?.[0]}
