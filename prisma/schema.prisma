@@ -36,6 +36,13 @@ model QueuingTicket {
   user                   User?         @relation(fields: [userId], references: [id])
 
   @@index([dateCreated])
+  @@index([queuingStatus])
+  @@index([dateTransactionStarted])
+  @@index([dateTransactionEnded])
+  @@index([counterId])
+  @@index([userId])
+  @@index([serviceTypeId])
+  @@index([transactionId])
 }
 
 model Transaction {

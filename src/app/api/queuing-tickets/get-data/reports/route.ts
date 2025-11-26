@@ -90,17 +90,35 @@ export async function GET(request: NextRequest) {
 
     const tickets = await prisma.queuingTicket.findMany({
       where: whereClause,
-      include: {
-        counter: true,
-        transaction: true,
-        serviceType: true,
+      select: {
+        id: true,
+        dateCreated: true,
+        number: true,
+        isPrioritized: true,
+        dateTransactionStarted: true,
+        dateTransactionEnded: true,
+        remarks: true,
+        otherServiceType: true,
+        counter: {
+          select: {
+            code: true,
+            name: true,
+          },
+        },
+        transaction: {
+          select: {
+            name: true,
+          },
+        },
+        serviceType: {
+          select: {
+            name: true,
+          },
+        },
         user: {
           select: {
             firstName: true,
-            middleName: true,
             lastName: true,
-            nameExtension: true,
-            // email: true,
           },
         },
       },

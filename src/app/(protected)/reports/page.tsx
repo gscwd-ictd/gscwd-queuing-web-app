@@ -129,20 +129,18 @@ export default function Reports() {
       <div className="flex flex-col flex-1 min-h-0 overflow-auto mt-6">
         <div className="h-full flex flex-col mt-2">
           <div className="h-20">{renderForm()}</div>
-          <div className="flex-1 p-2">
+          <div className="flex-1 p-2" key={reportType}>
             {reportData && reportData.tickets.length > 0 ? (
-              <PDFViewer width="100%" height="100%" key={reportType}>
+              <PDFViewer width="100%" height="100%">
                 {reportType === "summary" ? (
                   <SummaryReportOnQueuing
                     reportData={reportData}
-                    key={"summary"}
                     startDate={reportStartDate}
                     endDate={reportEndDate}
                   />
                 ) : (
                   <DetailedReportOnQueuing
                     reportData={reportData}
-                    key={"detailed"}
                     startDate={reportStartDate}
                     endDate={reportEndDate}
                   />

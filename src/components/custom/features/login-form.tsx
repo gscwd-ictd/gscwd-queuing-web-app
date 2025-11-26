@@ -56,10 +56,6 @@ export function LoginForm() {
   const shouldShowCounterSelect =
     data?.user?.allowedRoutes?.includes("/queuing");
 
-  useEffect(() => {
-    console.log("check-user data:", data);
-  }, [data]);
-
   type LoginFormValues = z.infer<typeof accountLoginFormSchema>;
 
   async function onSubmit(values: LoginFormValues) {

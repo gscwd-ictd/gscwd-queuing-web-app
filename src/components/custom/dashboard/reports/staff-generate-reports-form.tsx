@@ -84,7 +84,7 @@ export function StaffGenerateReportForm() {
       startDate: undefined,
       endDate: undefined,
       reportType: undefined,
-      serviceType: undefined,
+      serviceType: "all",
     },
   });
 

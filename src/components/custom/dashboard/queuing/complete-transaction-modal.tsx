@@ -190,7 +190,7 @@ export function CompleteTransactionModal({
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Complete</DialogTitle>
+            <DialogTitle>Complete Transaction</DialogTitle>
             <div className="flex flex-col gap-6 p-4">
               <SelectServiceTypeCommand />
               <div className="flex flex-col gap-2">

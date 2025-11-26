@@ -1,7 +1,6 @@
 "use client";
 
 import { useSocket } from "@/components/providers/socket-provider";
-import { Button } from "@/components/ui/button";
 import { usePlayBell } from "@/hooks/display/usePlayBell";
 import { useQueuingTicketStore } from "@/lib/store/dashboard/useQueuingTicketStore";
 import { QueuingStatus } from "@prisma/client";
@@ -167,29 +166,25 @@ export function NowServingCustomerWindow() {
   return (
     <div className="flex flex-col gap-10 items-center justify-between min-h-screen">
       <div className="bg-primary w-full p-4">
-        <h2 className="text-8xl font-semibold text-center text-white dark:text-black">
+        <h2 className="text-8xl font-bold text-center text-white dark:text-black uppercase">
           {nowServingTicket?.counter?.name || "Counter"}
         </h2>
       </div>
       {nowServingTicket?.number ? (
         <h3
-          className={`text-[256px] font-bold ${
+          className={`text-[330px] font-bold ${
             isTicketNumberBlinking ? "text-red-500 animate-pulse" : "text-black"
           }`}
         >
           {nowServingTicket.number}
         </h3>
       ) : (
-        <h3 className="text-[144px] font-bold text-gray-200">---</h3>
+        <h3 className="text-[330px] font-bold text-gray-200">---</h3>
       )}
 
-      <h2 className="text-7xl">Now Serving</h2>
-
-      <div className="place-self-start m-5">
-        <Button onClick={playBell} size="sm">
-          Test Bell Ring
-        </Button>
-      </div>
+      <h2 className="text-[120px] uppercase text-green-500 font-bold">
+        Now Serving
+      </h2>
     </div>
   );
 }

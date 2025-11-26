@@ -49,10 +49,6 @@ export const usersColumns: ColumnDef<
     },
   },
   {
-    accessorKey: "allowedRoutes",
-    header: "Allowed Routes",
-  },
-  {
     id: "actions",
     header: "Actions",
     cell: ({ row }) => {
