@@ -24,6 +24,21 @@ export function NowServingCustomerWindow() {
 
   const { playBell } = usePlayBell();
 
+  const { data: counter } = useQuery({
+    queryKey: ["get-current-counter-by-counter-id"],
+    queryFn: async () => {
+      const { data } = await axios.get(
+        `${process.env.NEXT_PUBLIC_HOST}/api/counters/${session.data?.user.counterId}`
+      );
+      return data;
+    },
+
+    enabled: !!session.data?.user.counterId,
+    refetchIntervalInBackground: true,
+    refetchOnMount: true,
+    refetchInterval: 10000,
+  });
+
   const { data: currentTicket, refetch } = useQuery({
     queryKey: ["current-ticket"],
     queryFn: async () => {
@@ -165,21 +180,23 @@ export function NowServingCustomerWindow() {
 
   return (
     <div className="flex flex-col gap-10 items-center justify-between min-h-screen">
-      <div className="bg-primary w-full p-4">
-        <h2 className="text-8xl font-bold text-center text-white dark:text-black uppercase">
-          {nowServingTicket?.counter?.name || "Counter"}
+      <div className="bg-primary w-full">
+        <h2 className="text-[275px] font-bold text-center text-white dark:text-black uppercase leading-none">
+          {counter?.code ?? "Counter"}
         </h2>
       </div>
       {nowServingTicket?.number ? (
         <h3
-          className={`text-[330px] font-bold ${
+          className={`text-[310px] leading-none font-bold align-left ${
             isTicketNumberBlinking ? "text-red-500 animate-pulse" : "text-black"
           }`}
         >
           {nowServingTicket.number}
         </h3>
       ) : (
-        <h3 className="text-[330px] font-bold text-gray-200">---</h3>
+        <h3 className="text-[310px] leading-none font-bold text-gray-200">
+          ---
+        </h3>
       )}
 
       <h2 className="text-[120px] uppercase text-green-500 font-bold">
