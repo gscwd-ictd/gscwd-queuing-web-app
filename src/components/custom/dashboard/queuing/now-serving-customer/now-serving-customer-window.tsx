@@ -187,7 +187,7 @@ export function NowServingCustomerWindow() {
       </div>
       {nowServingTicket?.number ? (
         <h3
-          className={`text-[310px] leading-none font-bold align-left ${
+          className={`text-[310px] leading-none font-bold ${
             isTicketNumberBlinking ? "text-red-500 animate-pulse" : "text-black"
           }`}
         >
