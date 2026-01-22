@@ -4,7 +4,6 @@ import { NextApiResponseServerIO } from "@/next";
 import { Server as ServerIO } from "socket.io";
 import {
   GeneratedQueuingTicket,
-  // NowServingTicket,
   QueuingTicket,
 } from "@/lib/types/prisma/queuingTicket";
 
@@ -14,10 +13,7 @@ export const config = {
   },
 };
 
-export default function handler(
-  req: NextApiRequest,
-  res: NextApiResponseServerIO
-) {
+export default function handler(req: NextApiRequest, res: NextApiResponseServerIO) {
   if (!res.socket.server.io) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const httpServer: NetServer = res.socket.server as any;
@@ -51,23 +47,15 @@ export default function handler(
       });
 
       // Ring bell to specific counter room
-      // socket.on(
-      //   "ring-bell",
-      //   (data: { counterId: string; ticketData: Partial<QueuingTicket> }) => {
-      //     console.log("Bell rang for counter:", data.counterId);
-
-      //     // Emit only to the specific counter room
-      //     io.to(`counter-${data.counterId}`).emit("bell-rang", data.ticketData);
-      //   }
-      // );
-
-      // Ring bell to all displays
       socket.on(
         "ring-bell",
         (ticketData: Partial<QueuingTicket> & { counterCode: string }) => {
-          io.emit("bell-rang", ticketData);
+          io.to(`counter-${ticketData.counterId}`).emit(
+            "bell-rang",
+            ticketData,
+          );
           console.log("Bell rang", ticketData);
-        }
+        },
       );
 
       socket.on("ticket-created", (data: GeneratedQueuingTicket) => {
