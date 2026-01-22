@@ -94,6 +94,8 @@ export default function CustomerWelfareCounterDisplay() {
   useEffect(() => {
     if (!socket) return;
 
+    socket.emit("join-main-display");
+
     const handleBellRang = (
       data: Partial<QueuingTicket> & { counterCode: string }
     ) => {

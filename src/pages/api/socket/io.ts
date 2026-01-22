@@ -13,7 +13,10 @@ export const config = {
   },
 };
 
-export default function handler(req: NextApiRequest, res: NextApiResponseServerIO) {
+export default function handler(
+  req: NextApiRequest,
+  res: NextApiResponseServerIO,
+) {
   if (!res.socket.server.io) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const httpServer: NetServer = res.socket.server as any;
@@ -46,14 +49,29 @@ export default function handler(req: NextApiRequest, res: NextApiResponseServerI
         console.log(`Socket ${socket.id} joined room: counter-${counterId}`);
       });
 
-      // Ring bell to specific counter room
+      socket.on("join-counter-room", (counterId: string) => {
+        socket.join(`counter:${counterId}`);
+      });
+
+      socket.on("join-main-display", () => {
+        socket.join("display:main");
+      });
+
       socket.on(
         "ring-bell",
-        (ticketData: Partial<QueuingTicket> & { counterCode: string }) => {
-          io.to(`counter-${ticketData.counterId}`).emit(
+        (
+          ticketData: Partial<QueuingTicket> & {
+            counterId: string;
+            counterCode: string;
+          },
+        ) => {
+          io.to(`counter:${ticketData.counterId}`).emit(
             "bell-rang",
             ticketData,
           );
+
+          io.to("display:main").emit("bell-rang", ticketData);
+
           console.log("Bell rang", ticketData);
         },
       );
