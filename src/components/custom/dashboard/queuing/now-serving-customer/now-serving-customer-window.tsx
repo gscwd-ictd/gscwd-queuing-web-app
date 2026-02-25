@@ -20,23 +20,25 @@ export function NowServingCustomerWindow() {
     setIsTicketNumberBlinking,
   } = useQueuingTicketStore();
   const { socket } = useSocket();
-  const session = useSession();
+  const { data: session, status } = useSession();
 
   const { playBell } = usePlayBell();
 
   const { data: counter } = useQuery({
-    queryKey: ["get-current-counter-by-counter-id"],
+    queryKey: ["get-current-counter-by-counter-id", session?.user?.counterId],
     queryFn: async () => {
       const { data } = await axios.get(
-        `${process.env.NEXT_PUBLIC_HOST}/api/counters/${session.data?.user.counterId}`
+        `${process.env.NEXT_PUBLIC_HOST}/api/counters/${session?.user?.counterId}`,
       );
       return data;
     },
-
-    enabled: !!session.data?.user.counterId,
-    refetchIntervalInBackground: true,
+    enabled: status === "authenticated" && !!session?.user?.counterId,
+    refetchInterval: false,
+    refetchIntervalInBackground: false,
     refetchOnMount: true,
-    refetchInterval: 10000,
+    refetchOnWindowFocus: true,
+    retry: 3,
+    retryDelay: 10000,
   });
 
   const { data: currentTicket, refetch } = useQuery({
@@ -44,7 +46,7 @@ export function NowServingCustomerWindow() {
     queryFn: async () => {
       try {
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_HOST}/api/queuing-tickets/get-current-called-ticket`
+          `${process.env.NEXT_PUBLIC_HOST}/api/queuing-tickets/get-current-called-ticket`,
         );
         return response.data;
       } catch (error) {
@@ -54,6 +56,7 @@ export function NowServingCustomerWindow() {
         return null;
       }
     },
+    enabled: true,
     refetchIntervalInBackground: true,
     refetchOnMount: true,
     refetchInterval: 10000,
@@ -74,16 +77,16 @@ export function NowServingCustomerWindow() {
         setIsTicketNumberBlinking(false);
       }, 2000);
     },
-    []
+    [],
   );
 
   useEffect(() => {
     if (!socket) return;
 
-    if (session.data?.user?.counterId) {
-      socket.emit("join-counter-room", session.data.user.counterId);
+    if (session?.user?.counterId) {
+      socket.emit("join-counter-room", session.user.counterId);
     }
-  }, [socket, session.data?.user?.counterId]);
+  }, [socket, session?.user?.counterId]);
 
   useEffect(() => {
     if (!socket) return;
@@ -181,9 +184,19 @@ export function NowServingCustomerWindow() {
   return (
     <div className="flex flex-col gap-10 items-center justify-between min-h-screen">
       <div className="bg-primary w-full">
-        <h2 className="text-[275px] font-bold text-center text-white dark:text-black uppercase leading-none">
-          {counter?.code ?? "Counter"}
-        </h2>
+        {counter ? (
+          <h2 className="text-[275px] font-bold text-center text-white dark:text-black uppercase leading-none">
+            {counter?.code}
+          </h2>
+        ) : nowServingTicket ? (
+          <h2 className="text-[275px] font-bold text-center text-white dark:text-black uppercase leading-none">
+            {nowServingTicket?.counter.code}
+          </h2>
+        ) : (
+          <h2 className="text-[275px] font-bold text-center text-white dark:text-black uppercase leading-none">
+            &nbsp;
+          </h2>
+        )}
       </div>
       {nowServingTicket?.number ? (
         <h3
