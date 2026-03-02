@@ -126,6 +126,18 @@ export async function POST(request: NextRequest) {
         departmentId: department,
         imageUrl: "",
         accountStatus: AccountStatus.active,
+
+        // ! Temporary fix for assigning shortcut keys to new users, might need a page for this
+        startTransactionHotkey: "z",
+        completeTransactionHotkey: "x",
+        transferHotkey: "c",
+        ringHotkey: "v",
+        markAsLapsedHotkey: "b",
+
+        nextTicketHotkey: "a",
+        nextLapsedTicketHotkey: "s",
+        nextSpecialTicketHotkey: "d",
+        nextLapsedSpecialTicketHotkey: "f",
       },
       select: {
         id: true,
@@ -136,7 +148,7 @@ export async function POST(request: NextRequest) {
         role: true,
         department: true,
       },
-    });
+    })
 
     return NextResponse.json(
       { message: "User created successfully", user },
