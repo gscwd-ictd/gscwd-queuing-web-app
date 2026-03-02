@@ -20,7 +20,13 @@ async function main() {
       role: "superadmin",
       imageUrl: "",
       position: "",
-      allowedRoutes: ["/home", "/screensavers", "/system-logs", "/users"],
+      allowedRoutes: [
+        "/home",
+        "/screensavers",
+        "/system-logs",
+        "/users",
+        "/user-session",
+      ],
     },
   });
 
@@ -667,6 +673,10 @@ async function main() {
       {
         path: "/users",
         name: "Users",
+      },
+      {
+        path: "/user-session",
+        name: "User Session",
       },
     ],
   });

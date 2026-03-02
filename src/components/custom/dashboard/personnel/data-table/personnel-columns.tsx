@@ -17,18 +17,10 @@ export const personnelColumns: ColumnDef<
     accessorKey: "fullName",
     header: "Name",
     cell: ({ row }) => {
-      const { firstName, middleName, lastName, nameExtension } = row.original;
+      const { firstName, middleName, lastName, nameExtension } = row.original
+      const fullName = `${firstName} ${middleName ? `${middleName}.` : ""} ${lastName}${nameExtension ? `, ${nameExtension}` : ""}`
 
-      const fullName = [
-        firstName,
-        middleName,
-        lastName,
-        nameExtension ? `(, ${nameExtension})` : null,
-      ]
-        .filter(Boolean)
-        .join(" ");
-
-      return <span>{fullName}</span>;
+      return <span>{fullName}</span>
     },
   },
   {

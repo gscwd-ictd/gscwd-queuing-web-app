@@ -1,4 +1,5 @@
 import {
+  Clock8,
   FileText,
   Home,
   Images,
@@ -9,13 +10,13 @@ import {
   UserRound,
   UsersRound,
   Wrench,
-} from "lucide-react";
+} from "lucide-react"
 
 type SidebarItem = {
-  title: string;
-  url: string;
-  icon: LucideIcon;
-};
+  title: string
+  url: string
+  icon: LucideIcon
+}
 
 export const sidebarItems = {
   application: [
@@ -64,9 +65,14 @@ export const sidebarItems = {
       icon: UserRound,
     },
     {
+      title: "User Session",
+      url: "/user-session",
+      icon: Clock8,
+    },
+    {
       title: "System Logs",
       url: "/system-logs",
       icon: Settings,
     },
   ],
-};
+}

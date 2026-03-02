@@ -36,6 +36,7 @@ export const config = {
     "/system-logs/:path*",
     "/personnel/:path*",
     "/users/:path*",
+    "/user-session/:path",
 
     "/api/auth/:path*",
   ],
