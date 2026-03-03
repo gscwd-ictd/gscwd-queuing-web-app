@@ -15,7 +15,7 @@ import { z } from "zod";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { transactionOptions } from "@/lib/constants/kiosk/transactionOptions";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, CheckIcon } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { KioskSubmitSuccess } from "../kiosk-submit-success";
 import axios from "axios";
@@ -26,7 +26,6 @@ import { toast } from "sonner";
 import { KioskConfirmPaymentTransaction } from "../kiosk-confirm-payment-transaction";
 import { useSocket } from "@/components/providers/socket-provider";
 import { printTicket } from "@/lib/functions/kiosk/printTicket";
-import { Input } from "@/components/ui/input";
 import { useKioskFormStore } from "@/lib/store/kiosk/useKioskFormStore";
 import { GeneratedQueuingTicket } from "@/lib/types/prisma/queuingTicket";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -54,7 +53,6 @@ export function Step1Form() {
   const { socket } = useSocket();
 
   const {
-    previousStep,
     resetForm,
     queuingTicket,
     setQueuingTicket,
@@ -177,7 +175,6 @@ export function Step1Form() {
       <div className="flex-1 flex flex-col items-start justify-between w-full h-full">
         <div className="h-full w-full flex flex-col flex-1 justify-between">
           <div className="flex h-[25%]">
-            {/* <PreviousButton previousStep={previousStep} /> */}
             <KioskStepsFormHeader />
           </div>
           <div className="flex h-[75%]">

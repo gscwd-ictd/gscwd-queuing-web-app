@@ -60,8 +60,8 @@ export function MonthlyServiceTypesChart({
                 interval={0}
                 tick={({ x, y, payload }) => {
                   const text =
-                    payload.value.length > 15
-                      ? payload.value.slice(0, 15) + "…"
+                    payload.value.length > 8
+                      ? payload.value.slice(0, 8) + "…"
                       : payload.value;
                   return (
                     <text x={x} y={y + 15} textAnchor="middle" fontSize={11}>

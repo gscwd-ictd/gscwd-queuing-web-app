@@ -4,7 +4,6 @@ import { create } from "zustand";
 type KioskFormStore = {
   currentStep: number;
   nextStep: () => void;
-  previousStep: () => void;
 
   queuingTicket: Partial<GeneratedQueuingTicket> | null;
   setQueuingTicket: (ticket: Partial<GeneratedQueuingTicket> | null) => void;
@@ -17,7 +16,6 @@ type KioskFormStore = {
 export const useKioskFormStore = create<KioskFormStore>((set) => ({
   currentStep: 0,
   nextStep: () => set((state) => ({ currentStep: state.currentStep + 1 })),
-  previousStep: () => set((state) => ({ currentStep: state.currentStep - 1 })),
 
   queuingTicket: null,
   setQueuingTicket: (ticket) => set({ queuingTicket: ticket }),

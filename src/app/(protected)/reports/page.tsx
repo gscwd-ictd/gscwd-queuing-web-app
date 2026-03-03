@@ -1,116 +1,63 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { Role } from "@prisma/client";
 import { useReportsStore } from "@/lib/store/dashboard/useReportsStore";
 import { useQuery } from "@tanstack/react-query";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import { toast } from "sonner";
-import { format } from "date-fns";
-import { PDFViewer } from "@react-pdf/renderer";
+import { Spinner } from "@/components/ui/spinner";
 import { FileX2 } from "lucide-react";
-import { QueuingTicketReport } from "@/lib/types/prisma/queuingTicket";
-import { LoadingIndicator } from "@/components/custom/features/loading-indicator";
+
 import { StaffGenerateReportForm } from "@/components/custom/dashboard/reports/staff-generate-reports-form";
 import { SupervisorGenerateReportForm } from "@/components/custom/dashboard/reports/supervisor-generate-reports-form";
-import { SummaryReportOnQueuing } from "@/components/custom/dashboard/reports/pdf/summary-report-on-queuing";
-import { DetailedReportOnQueuing } from "@/components/custom/dashboard/reports/pdf/detailed-report-on-queuing";
 
 export default function Reports() {
   const { data: session } = useSession();
-  const {
-    filters,
-    clearFilters,
-    reportData,
-    setReportData,
-    reportStartDate,
-    setReportStartDate,
-    reportEndDate,
-    setReportEndDate,
-    reportType,
-    setReportType,
-  } = useReportsStore();
+  const { filters } = useReportsStore();
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
 
-  const {
-    data: tickets,
-    isFetching,
-    isSuccess,
-  } = useQuery<QueuingTicketReport, AxiosError>({
-    queryKey: ["reports", filters],
-    queryFn: async (): Promise<QueuingTicketReport> => {
-      const params: Record<string, string> = {};
-      if (filters.userId) {
-        params.userId = filters.userId;
-      }
-      if (filters.startDate) {
-        params.startDate = format(filters.startDate, "yyyy-MM-dd");
-      }
-      if (filters.endDate) {
-        params.endDate = format(filters.endDate, "yyyy-MM-dd");
-      }
-      if (filters.serviceType) {
-        params.serviceTypeId = filters.serviceType;
-      }
-
-      const response = await axios.get<QueuingTicketReport>(
-        `${process.env.NEXT_PUBLIC_HOST}/api/queuing-tickets/get-data/reports`,
-        { params }
-      );
-      if (response.data.tickets.length === 0) {
-        toast.info("Info", { description: "No data found" });
-        return {
-          tickets: [],
-          generatedBy: response.data.generatedBy,
-          notedBy: response.data.notedBy,
-          approvedBy: response.data.approvedBy,
-        };
-      } else {
-        toast.success("Success", {
-          description: "Report generated successfully",
-        });
-        return response.data;
-      }
-    },
+  const { data, isFetching, isError } = useQuery({
+    queryKey: ["generate-report", filters],
     enabled: !!filters.startDate && !!filters.endDate && !!filters.reportType,
+    queryFn: async () => {
+      if (pdfUrl) {
+        URL.revokeObjectURL(pdfUrl);
+        setPdfUrl(null);
+      }
+
+      const res = await axios.post(
+        `${process.env.NEXT_PUBLIC_HOST}/api/queuing-tickets/get-data/reports/generate`,
+        {
+          startDate: filters.startDate,
+          endDate: filters.endDate,
+          reportType: filters.reportType,
+          userId: filters.userId,
+          serviceTypeId: filters.serviceType,
+        },
+        { responseType: "blob" }
+      );
+      
+      return res.data;
+    },
     refetchOnWindowFocus: false,
-    refetchOnMount: false,
+    retry: false,
   });
 
   useEffect(() => {
-    if (isFetching) {
-      toast.info("Generating report", {
-        description: "Your report is still generating",
-      });
+    if (data) {
+      const url = URL.createObjectURL(data);
+      setPdfUrl(url);
+      toast.success("Report generated successfully");
     }
-  }, [isFetching]);
+  }, [data]);
 
   useEffect(() => {
-    if (isSuccess && !isFetching && tickets) {
-      setReportData(tickets);
-      setReportStartDate(filters.startDate);
-      setReportEndDate(filters.endDate);
-      setReportType(filters.reportType);
-      clearFilters();
+    if (isError) {
+      toast.error("Failed to generate report");
     }
-  }, [
-    isSuccess,
-    isFetching,
-    tickets,
-    clearFilters,
-    filters,
-    setReportData,
-    setReportStartDate,
-    setReportEndDate,
-    setReportType,
-  ]);
-
-  useEffect(() => {
-    return () => {
-      clearFilters();
-      setReportData(null);
-    };
-  }, [clearFilters, setReportData]);
+  }, [isError]);
 
   const renderForm = () => {
     switch (session?.user?.role) {
@@ -126,37 +73,27 @@ export default function Reports() {
   return (
     <>
       <h1 className="text-xl font-semibold">Reports</h1>
-      <div className="flex flex-col flex-1 min-h-0 overflow-auto mt-6">
-        <div className="h-full flex flex-col mt-2">
-          <div className="h-20">{renderForm()}</div>
-          <div className="flex-1 p-2" key={reportType}>
-            {reportData && reportData.tickets.length > 0 ? (
-              <PDFViewer width="100%" height="100%">
-                {reportType === "summary" ? (
-                  <SummaryReportOnQueuing
-                    reportData={reportData}
-                    startDate={reportStartDate}
-                    endDate={reportEndDate}
-                  />
-                ) : (
-                  <DetailedReportOnQueuing
-                    reportData={reportData}
-                    startDate={reportStartDate}
-                    endDate={reportEndDate}
-                  />
-                )}
-              </PDFViewer>
-            ) : isFetching ? (
-              <LoadingIndicator />
-            ) : (
-              <div className="flex flex-col items-center justify-center h-full w-full">
-                <div className="flex flex-col gap-3 items-center text-gray-400">
-                  <FileX2 size={60} />
-                  <p className="text-xl font-medium">No report available.</p>
-                </div>
-              </div>
-            )}
-          </div>
+
+      <div className="flex flex-col flex-1 min-h-0 mt-4 gap-4">
+        <div className="shrink-0">{renderForm()}</div>
+        <div className="flex flex-1 items-center justify-center">
+          {isFetching ? (
+            <div className="flex items-center gap-2">
+              <Spinner className="size-6" />
+              <span>Generating report…</span>
+            </div>
+          ) : pdfUrl ? (
+            <iframe
+              src={pdfUrl}
+              className="w-full h-full"
+              title="Generated Report"
+            />
+          ) : (
+            <div className="flex flex-col items-center gap-3 text-gray-400">
+              <FileX2 size={60} />
+              <p>No report generated</p>
+            </div>
+          )}
         </div>
       </div>
     </>

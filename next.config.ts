@@ -9,6 +9,7 @@ const nextConfig: NextConfig = {
     }
     return config;
   },
+  serverExternalPackages: ["pdfkit"],
   images: {
     qualities: [25, 50, 75, 100],
   },
