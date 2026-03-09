@@ -1,36 +1,47 @@
-import { getServerSession } from "next-auth/next";
-import prisma from "@/lib/prisma";
-import { authOptions } from "@/lib/auth";
-import { NextResponse } from "next/server";
-import { Prisma } from "@prisma/client";
+import { getServerSession } from "next-auth/next"
+import prisma from "@/lib/prisma"
+import { authOptions } from "@/lib/auth"
+import { NextResponse } from "next/server"
+import { Prisma } from "@prisma/client"
 
 export async function GET() {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession(authOptions)
 
   if (!session || !session.user) {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
   }
 
   if (!session.user.departmentId) {
     return NextResponse.json(
       { message: "User is not assigned to a department" },
-      { status: 403 }
-    );
+      { status: 403 },
+    )
   }
 
   try {
-    const whereClause: Prisma.TransactionWhereInput = {
-      departmentId: session.user.departmentId,
-    };
+    let whereClause: Prisma.TransactionWhereInput = {}
 
-    if (!session.user.assignedTransactionId) {
+    if (session.user.role === "superuser") {
+      if (!session.user.assignedTransactionId) {
+        return NextResponse.json(
+          { message: "User has no assigned transaction" },
+          { status: 403 },
+        )
+      }
+
+      whereClause = {
+        id: session.user.assignedTransactionId,
+      }
+    } else if (session.user.role === "admin") {
+      whereClause = {
+        departmentId: session.user.departmentId,
+      }
+    } else {
       return NextResponse.json(
-        { message: "User is not assigned to any transactions" },
-        { status: 403 }
-      );
+        { message: "Insufficient permissions" },
+        { status: 403 },
+      )
     }
-
-    whereClause.id = session.user.assignedTransactionId;
 
     const transactions = await prisma.transaction.findMany({
       where: whereClause,
@@ -59,10 +70,10 @@ export async function GET() {
       orderBy: {
         dateCreated: "desc",
       },
-    });
+    })
 
-    return NextResponse.json(transactions);
+    return NextResponse.json(transactions)
   } catch (error) {
-    return NextResponse.json({ error: error }, { status: 500 });
+    return NextResponse.json({ error: error }, { status: 500 })
   }
 }
