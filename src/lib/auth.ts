@@ -35,6 +35,14 @@ export const authOptions: NextAuthOptions = {
           where: { userId: token.id, counterId: token.counterId },
         });
       }
+
+      // recently added clean up session upon logout for this user
+      await prisma.userSession.deleteMany({
+        where: {
+          userId: token.id,
+          expiresAt: { lt: new Date() }, // Delete expired sessions
+        },
+      });
     },
   },
   providers: [
