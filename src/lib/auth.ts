@@ -1,15 +1,15 @@
-import { PrismaAdapter } from "@auth/prisma-adapter";
+import { PrismaAdapter } from '@auth/prisma-adapter';
 import {
   AccountStatus as PrismaAccountStatus,
   PrismaClient,
   Role as PrismaRole,
   User as PrismaUser,
   Route as PrismaRoute,
-} from "@prisma/client";
-import CredentialsProvider from "next-auth/providers/credentials";
-import bcrypt from "bcrypt";
-import type { NextAuthOptions } from "next-auth";
-import { addHours } from "date-fns";
+} from '@prisma/client';
+import CredentialsProvider from 'next-auth/providers/credentials';
+import bcrypt from 'bcrypt';
+import type { NextAuthOptions } from 'next-auth';
+import { addHours } from 'date-fns';
 
 const prisma = new PrismaClient();
 
@@ -20,13 +20,13 @@ type User = PrismaUser & {
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   session: {
-    strategy: "jwt",
-    maxAge: 8 * 60 * 60,
+    strategy: 'jwt',
+    maxAge: 10 * 60 * 60, // the first number indicates hours
     updateAge: 60 * 60,
   },
   secret: process.env.NEXTAUTH_SECRET,
   pages: {
-    signIn: "/login",
+    signIn: '/login',
   },
   events: {
     async signOut({ token }) {
@@ -39,11 +39,11 @@ export const authOptions: NextAuthOptions = {
   },
   providers: [
     CredentialsProvider({
-      name: "credentials",
+      name: 'credentials',
       credentials: {
-        email: { label: "email", type: "email" },
-        password: { label: "password", type: "password" },
-        counterId: { label: "counter", type: "text" },
+        email: { label: 'email', type: 'email' },
+        password: { label: 'password', type: 'password' },
+        counterId: { label: 'counter', type: 'text' },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
@@ -55,21 +55,16 @@ export const authOptions: NextAuthOptions = {
         });
 
         if (!user) {
-          throw new Error("Email not found. Please check your email.");
+          throw new Error('Email not found. Please check your email.');
         }
 
-        const isValid = await bcrypt.compare(
-          credentials.password,
-          user.password
-        );
+        const isValid = await bcrypt.compare(credentials.password, user.password);
         if (!isValid) {
-          throw new Error("Incorrect password. Please try again.");
+          throw new Error('Incorrect password. Please try again.');
         }
 
         if (user.accountStatus !== PrismaAccountStatus.active) {
-          throw new Error(
-            "Account is inactive. Please contact administrator to gain access."
-          );
+          throw new Error('Account is inactive. Please contact administrator to gain access.');
         }
 
         if (credentials.counterId) {
@@ -79,11 +74,11 @@ export const authOptions: NextAuthOptions = {
           });
 
           if (!counter) {
-            throw new Error("Counter not found.");
+            throw new Error('Counter not found.');
           }
 
           if (counter.departmentId !== user.departmentId) {
-            throw new Error("Counter belongs to a different department.");
+            throw new Error('Counter belongs to a different department.');
           }
 
           const existingCounterSession = await prisma.userSession.findFirst({
@@ -106,11 +101,10 @@ export const authOptions: NextAuthOptions = {
               },
             });
 
-            const allOccupied =
-              activeSessions.length >= countersInDepartment.length;
+            const allOccupied = activeSessions.length >= countersInDepartment.length;
 
             if (!allOccupied) {
-              throw new Error("Counter already assigned to another user.");
+              throw new Error('Counter already assigned to another user.');
             }
           }
 
@@ -190,31 +184,25 @@ export const authOptions: NextAuthOptions = {
         token.id = (user as User).id;
         token.role = (user as User).role;
         token.firstName = (user as User).firstName;
-        token.middleName = (user as User).middleName || "";
+        token.middleName = (user as User).middleName || '';
         token.lastName = (user as User).lastName;
         token.nameExtension = (user as User).nameExtension || undefined;
         token.email = (user as User).email;
-        token.imageUrl = (user as User).imageUrl || "";
+        token.imageUrl = (user as User).imageUrl || '';
         token.position = (user as User).position;
         token.departmentId = (user as User).departmentId || undefined;
-        token.assignedTransactionId =
-          (user as User).assignedTransactionId || undefined;
+        token.assignedTransactionId = (user as User).assignedTransactionId || undefined;
         token.counterId = (user as User).counterId || undefined;
         token.accountStatus = (user as User).accountStatus;
-        token.startTransactionHotkey =
-          (user as User).startTransactionHotkey || null;
+        token.startTransactionHotkey = (user as User).startTransactionHotkey || null;
         token.transferHotkey = (user as User).transferHotkey || null;
-        token.completeTransactionHotkey =
-          (user as User).completeTransactionHotkey || null;
+        token.completeTransactionHotkey = (user as User).completeTransactionHotkey || null;
         token.ringHotkey = (user as User).ringHotkey || null;
         token.markAsLapsedHotkey = (user as User).markAsLapsedHotkey || null;
         token.nextTicketHotkey = (user as User).nextTicketHotkey || null;
-        token.nextLapsedTicketHotkey =
-          (user as User).nextLapsedTicketHotkey || null;
-        token.nextSpecialTicketHotkey =
-          (user as User).nextSpecialTicketHotkey || null;
-        token.nextLapsedSpecialTicketHotkey =
-          (user as User).nextLapsedSpecialTicketHotkey || null;
+        token.nextLapsedTicketHotkey = (user as User).nextLapsedTicketHotkey || null;
+        token.nextSpecialTicketHotkey = (user as User).nextSpecialTicketHotkey || null;
+        token.nextLapsedSpecialTicketHotkey = (user as User).nextLapsedSpecialTicketHotkey || null;
         token.allowedRoutes = (user as User).allowedRoutes || [];
       }
       return token;
@@ -223,8 +211,7 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         session.user.id = token.id as string;
         session.user.role = token.role as PrismaRole;
-        session.user.allowedRoutes =
-          token.allowedRoutes as PrismaRoute["path"][];
+        session.user.allowedRoutes = token.allowedRoutes as PrismaRoute['path'][];
         session.user.firstName = token.firstName as string;
         session.user.middleName = token.middleName as string;
         session.user.lastName = token.lastName as string;
@@ -232,24 +219,18 @@ export const authOptions: NextAuthOptions = {
         session.user.imageUrl = token.imageUrl as string;
         session.user.position = token.position as string;
         session.user.departmentId = token.departmentId as string;
-        session.user.assignedTransactionId =
-          token.assignedTransactionId as string;
+        session.user.assignedTransactionId = token.assignedTransactionId as string;
         session.user.counterId = token.counterId as string;
         session.user.accountStatus = token.accountStatus as PrismaAccountStatus;
-        session.user.startTransactionHotkey =
-          token.startTransactionHotkey as string;
+        session.user.startTransactionHotkey = token.startTransactionHotkey as string;
         session.user.transferHotkey = token.transferHotkey as string;
-        session.user.completeTransactionHotkey =
-          token.completeTransactionHotkey as string;
+        session.user.completeTransactionHotkey = token.completeTransactionHotkey as string;
         session.user.ringHotkey = token.ringHotkey as string;
         session.user.markAsLapsedHotkey = token.markAsLapsedHotkey as string;
         session.user.nextTicketHotkey = token.nextTicketHotkey as string;
-        session.user.nextLapsedTicketHotkey =
-          token.nextLapsedTicketHotkey as string;
-        session.user.nextSpecialTicketHotkey =
-          token.nextSpecialTicketHotkey as string;
-        session.user.nextLapsedSpecialTicketHotkey =
-          token.nextLapsedSpecialTicketHotkey as string;
+        session.user.nextLapsedTicketHotkey = token.nextLapsedTicketHotkey as string;
+        session.user.nextSpecialTicketHotkey = token.nextSpecialTicketHotkey as string;
+        session.user.nextLapsedSpecialTicketHotkey = token.nextLapsedSpecialTicketHotkey as string;
       }
       return session;
     },
