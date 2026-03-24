@@ -1,16 +1,49 @@
-"use client";
+'use client';
 
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { ReactNode } from "react";
+import { type FunctionComponent, type PropsWithChildren, Suspense, lazy, useEffect } from 'react';
+import { QueryClient, QueryClientProvider as ReactQueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { devtools } from 'zustand/middleware';
+import { create } from 'zustand';
+
+type RQDevtoolsState = {
+  show: boolean;
+  toggleDevtools: () => void;
+};
+
+const ReactQueryDevtoolsProduction = lazy(() =>
+  import('@tanstack/react-query-devtools/build/modern/production.js').then((d) => ({
+    default: d.ReactQueryDevtools,
+  }))
+);
 
 const queryClient = new QueryClient();
 
-export function QueryProvider({ children }: { children: ReactNode }) {
+export const ReactQueryProvider: FunctionComponent<PropsWithChildren> = ({ children }) => {
+  const { show, toggleDevtools } = useRQDevtoolsInProd();
+
+  useEffect(() => {
+    // @ts-expect-error - this is a custom function
+    window.toggleDevtools = () => toggleDevtools();
+  }, [toggleDevtools, show]);
+
   return (
-    <QueryClientProvider client={queryClient}>
-      <ReactQueryDevtools initialIsOpen={false} position={"bottom"} />
+    <ReactQueryClientProvider client={queryClient}>
       {children}
-    </QueryClientProvider>
+      <ReactQueryDevtools initialIsOpen={false} />
+
+      {show && (
+        <Suspense fallback={null}>
+          <ReactQueryDevtoolsProduction />
+        </Suspense>
+      )}
+    </ReactQueryClientProvider>
   );
-}
+};
+
+const useRQDevtoolsInProd = create<RQDevtoolsState>()(
+  devtools((set, get) => ({
+    show: false,
+    toggleDevtools: () => set(() => ({ show: !get().show }), false, 'toogle_devtools_in_prod'),
+  }))
+);
