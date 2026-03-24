@@ -21,7 +21,7 @@ export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   session: {
     strategy: 'jwt',
-    maxAge: 10 * 60 * 60, // the first number indicates hours
+    maxAge: 10 * 60 * 60,
     updateAge: 60 * 60,
   },
   secret: process.env.NEXTAUTH_SECRET,
@@ -31,22 +31,10 @@ export const authOptions: NextAuthOptions = {
   events: {
     async signOut({ token }) {
       if (token.id && token.counterId) {
-        // Delete the current counter session (even if not expired)
-        await prisma.userSession.deleteMany({
-          where: {
-            userId: token.id,
-            counterId: token.counterId,
-          },
+        await prisma.userSession.delete({
+          where: { userId: token.id, counterId: token.counterId },
         });
       }
-
-      // Delete any other expired sessions for this user
-      await prisma.userSession.deleteMany({
-        where: {
-          userId: token.id,
-          expiresAt: { lt: new Date() },
-        },
-      });
     },
   },
   providers: [
@@ -124,7 +112,7 @@ export const authOptions: NextAuthOptions = {
             data: {
               userId: user.id,
               counterId: credentials.counterId,
-              expiresAt: addHours(new Date(), 10), //! changed from 8 to 10
+              expiresAt: addHours(new Date(), 10),
             },
           });
         }
