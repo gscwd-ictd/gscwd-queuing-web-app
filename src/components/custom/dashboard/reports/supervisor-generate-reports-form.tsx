@@ -1,41 +1,23 @@
-"use client";
+'use client';
 
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { CalendarIcon, Check, ChevronsUpDown } from "lucide-react";
-import { format, isAfter, isBefore } from "date-fns";
-import { cn } from "@/lib/utils";
-import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
-import { useReportsStore } from "@/lib/store/dashboard/useReportsStore";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import { useState } from "react";
-import { toast } from "sonner";
-import { supervisorReportFormSchema } from "@/lib/schemas/dashboard/reports/reportFormSchema";
-import { User as Personnel } from "@/lib/types/prisma/user";
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { Button } from '@/components/ui/button';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { CalendarIcon, Check, ChevronsUpDown } from 'lucide-react';
+import { format, isAfter, isBefore } from 'date-fns';
+import { cn } from '@/lib/utils';
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
+import { useReportsStore } from '@/lib/store/dashboard/useReportsStore';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { useState } from 'react';
+import { toast } from 'sonner';
+import { supervisorReportFormSchema } from '@/lib/schemas/dashboard/reports/reportFormSchema';
+import { User as Personnel } from '@/lib/types/prisma/user';
 import {
   Select,
   SelectContent,
@@ -44,8 +26,8 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { ServiceType } from "@/lib/types/prisma/serviceType";
+} from '@/components/ui/select';
+import { ServiceType } from '@/lib/types/prisma/serviceType';
 
 export function SupervisorGenerateReportForm() {
   const { setFilters } = useReportsStore();
@@ -53,23 +35,21 @@ export function SupervisorGenerateReportForm() {
   const [openServiceTypeSelect, setOpenServiceTypeSelect] = useState(false);
 
   const { data: personnel } = useQuery({
-    queryKey: ["personnel-under-supervisor"],
+    queryKey: ['personnel-under-supervisor'],
     queryFn: async () => {
       try {
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_HOST}/api/users/get-all-users-by-supervisor`
-        );
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_HOST}/api/users/get-all-users-by-supervisor`);
         if (response.data.length === 0) {
-          toast.info("Info", { description: "No personnel found" });
+          toast.info('Info', { description: 'No personnel found' });
           return [];
         } else {
-          toast.success("Success", {
-            description: "Personnel fetched successfully",
+          toast.success('Success', {
+            description: 'Personnel fetched successfully',
           });
           return response.data;
         }
       } catch (error) {
-        toast.error("Error", { description: `${error}` });
+        toast.error('Error', { description: `${error}` });
         return [];
       }
     },
@@ -78,24 +58,22 @@ export function SupervisorGenerateReportForm() {
   });
 
   const { data: serviceTypes } = useQuery<ServiceType[]>({
-    queryKey: ["get-all-service-types"],
+    queryKey: ['get-all-service-types'],
     queryFn: async () => {
       try {
-        const response = await axios.get<ServiceType[]>(
-          `${process.env.NEXT_PUBLIC_HOST}/api/service-types`
-        );
+        const response = await axios.get<ServiceType[]>(`${process.env.NEXT_PUBLIC_HOST}/api/service-types`);
         if (response.data.length === 0) {
-          toast.info("Info", {
-            description: "No service types found",
+          toast.info('Info', {
+            description: 'No service types found',
           });
         } else {
-          toast.success("Success", {
-            description: "Service types fetched successfully",
+          toast.success('Success', {
+            description: 'Service types fetched successfully',
           });
         }
         return response.data;
       } catch (error) {
-        toast.error("Error fetching service types", {
+        toast.error('Error fetching service types', {
           description: `${error}`,
         });
         return [];
@@ -108,41 +86,40 @@ export function SupervisorGenerateReportForm() {
   const form = useForm<z.infer<typeof supervisorReportFormSchema>>({
     resolver: zodResolver(supervisorReportFormSchema),
     defaultValues: {
-      userId: "all",
+      userId: 'all',
       startDate: undefined,
       endDate: undefined,
       reportType: undefined,
       serviceType: undefined,
     },
+    mode: 'onSubmit',
   });
 
   const onSubmit = (data: z.infer<typeof supervisorReportFormSchema>) => {
     setFilters({
-      userId: data.userId === "all" ? undefined : data.userId,
+      userId: data.userId === 'all' ? undefined : data.userId,
       startDate: data.startDate,
       endDate: data.endDate,
       reportType: data.reportType,
-      serviceType: data.serviceType === "all" ? undefined : data.serviceType,
+      serviceType: data.serviceType === 'all' ? undefined : data.serviceType,
     });
 
-    form.reset({
-      userId: "all",
-      startDate: undefined,
-      endDate: undefined,
-      reportType: undefined,
-      serviceType: "",
-    });
+    // form.reset({
+    //   userId: 'all',
+    //   startDate: undefined,
+    //   endDate: undefined,
+    //   reportType: undefined,
+    //   serviceType: '',
+    // });
+    //! removed form reset to retain after submit
   };
 
-  const startDate = form.watch("startDate");
-  const endDate = form.watch("endDate");
+  const startDate = form.watch('startDate');
+  const endDate = form.watch('endDate');
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-row items-start gap-4"
-      >
+      <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-row items-start gap-4">
         <div className="flex flex-row gap-2 items-start">
           <div className="flex flex-row gap-4 items-start">
             <FormField
@@ -152,10 +129,7 @@ export function SupervisorGenerateReportForm() {
                 <div className="flex flex-col items-start gap-1">
                   <FormItem className="flex flex-row items-center gap-2">
                     <FormLabel>Personnel</FormLabel>
-                    <Popover
-                      open={openPersonnelSelect}
-                      onOpenChange={setOpenPersonnelSelect}
-                    >
+                    <Popover open={openPersonnelSelect} onOpenChange={setOpenPersonnelSelect}>
                       <PopoverTrigger asChild>
                         <FormControl>
                           <Button
@@ -166,19 +140,13 @@ export function SupervisorGenerateReportForm() {
                             className="w-[200px] justify-between"
                           >
                             <span className="truncate max-w-[150px] text-left">
-                              {field.value === "all"
-                                ? "All Personnel"
+                              {field.value === 'all'
+                                ? 'All Personnel'
                                 : field.value
-                                ? personnel?.find(
-                                    (personnel: Personnel) =>
-                                      personnel.id === field.value
-                                  )?.firstName +
-                                  " " +
-                                  personnel?.find(
-                                    (personnel: Personnel) =>
-                                      personnel.id === field.value
-                                  )?.lastName
-                                : "Select personnel..."}
+                                ? personnel?.find((personnel: Personnel) => personnel.id === field.value)?.firstName +
+                                  ' ' +
+                                  personnel?.find((personnel: Personnel) => personnel.id === field.value)?.lastName
+                                : 'Select personnel...'}
                             </span>
                             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                           </Button>
@@ -193,17 +161,12 @@ export function SupervisorGenerateReportForm() {
                               <CommandItem
                                 value="all"
                                 onSelect={() => {
-                                  form.setValue("userId", "all");
+                                  form.setValue('userId', 'all');
                                   setOpenPersonnelSelect(false);
                                 }}
                               >
                                 <Check
-                                  className={cn(
-                                    "mr-2 h-4 w-4",
-                                    field.value === "all"
-                                      ? "opacity-100"
-                                      : "opacity-0"
-                                  )}
+                                  className={cn('mr-2 h-4 w-4', field.value === 'all' ? 'opacity-100' : 'opacity-0')}
                                 />
                                 All Personnel
                               </CommandItem>
@@ -212,16 +175,14 @@ export function SupervisorGenerateReportForm() {
                                   key={personnel.id}
                                   value={`${personnel.firstName} ${personnel.lastName}`.trim()}
                                   onSelect={() => {
-                                    form.setValue("userId", personnel.id);
+                                    form.setValue('userId', personnel.id);
                                     setOpenPersonnelSelect(false);
                                   }}
                                 >
                                   <Check
                                     className={cn(
-                                      "mr-2 h-4 w-4",
-                                      field.value === personnel.id
-                                        ? "opacity-100"
-                                        : "opacity-0"
+                                      'mr-2 h-4 w-4',
+                                      field.value === personnel.id ? 'opacity-100' : 'opacity-0'
                                     )}
                                   />
                                   {personnel.firstName} {personnel.lastName}
@@ -249,17 +210,13 @@ export function SupervisorGenerateReportForm() {
                         <FormControl>
                           <Button
                             size="sm"
-                            variant={"outline"}
+                            variant={'outline'}
                             className={cn(
-                              "w-[150px] pl-3 text-left font-normal",
-                              !field.value && "text-muted-foreground"
+                              'w-[150px] pl-3 text-left font-normal',
+                              !field.value && 'text-muted-foreground'
                             )}
                           >
-                            {field.value ? (
-                              format(field.value, "yyyy-MM-dd")
-                            ) : (
-                              <span>Pick a date</span>
-                            )}
+                            {field.value ? format(field.value, 'yyyy-MM-dd') : <span>Pick a date</span>}
                             <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                           </Button>
                         </FormControl>
@@ -269,11 +226,7 @@ export function SupervisorGenerateReportForm() {
                           mode="single"
                           selected={field.value}
                           onSelect={field.onChange}
-                          disabled={
-                            endDate
-                              ? (date) => isAfter(date, endDate)
-                              : undefined
-                          }
+                          disabled={endDate ? (date) => isAfter(date, endDate) : undefined}
                         />
                       </PopoverContent>
                     </Popover>
@@ -295,17 +248,13 @@ export function SupervisorGenerateReportForm() {
                         <FormControl>
                           <Button
                             size="sm"
-                            variant={"outline"}
+                            variant={'outline'}
                             className={cn(
-                              "w-[150px] pl-3 text-left font-normal",
-                              !field.value && "text-muted-foreground"
+                              'w-[150px] pl-3 text-left font-normal',
+                              !field.value && 'text-muted-foreground'
                             )}
                           >
-                            {field.value ? (
-                              format(field.value, "yyyy-MM-dd")
-                            ) : (
-                              <span>Pick a date</span>
-                            )}
+                            {field.value ? format(field.value, 'yyyy-MM-dd') : <span>Pick a date</span>}
                             <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                           </Button>
                         </FormControl>
@@ -315,11 +264,7 @@ export function SupervisorGenerateReportForm() {
                           mode="single"
                           selected={field.value}
                           onSelect={field.onChange}
-                          disabled={
-                            startDate
-                              ? (date) => isBefore(date, startDate)
-                              : undefined
-                          }
+                          disabled={startDate ? (date) => isBefore(date, startDate) : undefined}
                         />
                       </PopoverContent>
                     </Popover>
@@ -331,23 +276,18 @@ export function SupervisorGenerateReportForm() {
 
             <FormField
               control={form.control}
-              name={"reportType"}
+              name={'reportType'}
               render={({ field }) => (
                 <div className="flex flex-row items-center gap-1">
                   <FormItem className="flex flex-row items-center gap-2">
                     <FormLabel>Report</FormLabel>
                     <FormControl>
-                      <Select
-                        value={field.value ?? ""}
-                        onValueChange={field.onChange}
-                      >
+                      <Select value={field.value ?? ''} onValueChange={field.onChange}>
                         <SelectTrigger
                           size="sm"
                           className={cn(
-                            "w-[200px]",
-                            form.formState.errors.reportType
-                              ? "border-red-500 focus:ring-red-500"
-                              : ""
+                            'w-[200px]',
+                            form.formState.errors.reportType ? 'border-red-500 focus:ring-red-500' : ''
                           )}
                         >
                           <SelectValue placeholder="Select report type" />
@@ -355,9 +295,7 @@ export function SupervisorGenerateReportForm() {
                         <SelectContent>
                           <SelectGroup>
                             <SelectLabel>Report</SelectLabel>
-                            <SelectItem value="detailed">
-                              Detailed Report on Queuing
-                            </SelectItem>
+                            <SelectItem value="detailed">Detailed Report on Queuing</SelectItem>
                             {/* <SelectItem value="summary">
                             Summary Report on Queuing
                           </SelectItem> */}
@@ -378,10 +316,7 @@ export function SupervisorGenerateReportForm() {
                 <div className="flex flex-col items-start gap-1">
                   <FormItem className="flex flex-row items-center gap-2">
                     <FormLabel>Service Type</FormLabel>
-                    <Popover
-                      open={openServiceTypeSelect}
-                      onOpenChange={setOpenServiceTypeSelect}
-                    >
+                    <Popover open={openServiceTypeSelect} onOpenChange={setOpenServiceTypeSelect}>
                       <PopoverTrigger asChild>
                         <FormControl>
                           <Button
@@ -392,13 +327,11 @@ export function SupervisorGenerateReportForm() {
                             className="w-[200px] justify-between"
                           >
                             <span className="truncate max-w-[150px] text-left">
-                              {field.value === "all"
-                                ? "All Service Types"
+                              {field.value === 'all'
+                                ? 'All Service Types'
                                 : field.value
-                                ? serviceTypes?.find(
-                                    (st) => st.id === field.value
-                                  )?.name ?? "Select service type..."
-                                : "Select service type..."}
+                                ? serviceTypes?.find((st) => st.id === field.value)?.name ?? 'Select service type...'
+                                : 'Select service type...'}
                             </span>
                             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                           </Button>
@@ -413,17 +346,12 @@ export function SupervisorGenerateReportForm() {
                               <CommandItem
                                 value="all"
                                 onSelect={() => {
-                                  form.setValue("serviceType", "all");
+                                  form.setValue('serviceType', 'all');
                                   setOpenServiceTypeSelect(false);
                                 }}
                               >
                                 <Check
-                                  className={cn(
-                                    "mr-2 h-4 w-4",
-                                    field.value === "all"
-                                      ? "opacity-100"
-                                      : "opacity-0"
-                                  )}
+                                  className={cn('mr-2 h-4 w-4', field.value === 'all' ? 'opacity-100' : 'opacity-0')}
                                 />
                                 All Service Type
                               </CommandItem>
@@ -432,19 +360,14 @@ export function SupervisorGenerateReportForm() {
                                   key={serviceType.id}
                                   value={serviceType.name}
                                   onSelect={() => {
-                                    form.setValue(
-                                      "serviceType",
-                                      serviceType.id
-                                    );
+                                    form.setValue('serviceType', serviceType.id);
                                     setOpenServiceTypeSelect(false);
                                   }}
                                 >
                                   <Check
                                     className={cn(
-                                      "mr-2 h-4 w-4",
-                                      field.value === serviceType.id
-                                        ? "opacity-100"
-                                        : "opacity-0"
+                                      'mr-2 h-4 w-4',
+                                      field.value === serviceType.id ? 'opacity-100' : 'opacity-0'
                                     )}
                                   />
                                   {serviceType.name}

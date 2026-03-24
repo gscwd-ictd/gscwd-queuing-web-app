@@ -1,21 +1,21 @@
-"use client";
+'use client';
 
-import { useEffect } from "react";
-import { useSession } from "next-auth/react";
-import { Role } from "@prisma/client";
-import { useReportsStore } from "@/lib/store/dashboard/useReportsStore";
-import { useQuery } from "@tanstack/react-query";
-import axios, { AxiosError } from "axios";
-import { toast } from "sonner";
-import { format } from "date-fns";
-import { PDFViewer } from "@react-pdf/renderer";
-import { FileX2 } from "lucide-react";
-import { QueuingTicketReport } from "@/lib/types/prisma/queuingTicket";
-import { LoadingIndicator } from "@/components/custom/features/loading-indicator";
-import { StaffGenerateReportForm } from "@/components/custom/dashboard/reports/staff-generate-reports-form";
-import { SupervisorGenerateReportForm } from "@/components/custom/dashboard/reports/supervisor-generate-reports-form";
-import { SummaryReportOnQueuing } from "@/components/custom/dashboard/reports/pdf/summary-report-on-queuing";
-import { DetailedReportOnQueuing } from "@/components/custom/dashboard/reports/pdf/detailed-report-on-queuing";
+import { useEffect } from 'react';
+import { useSession } from 'next-auth/react';
+import { Role } from '@prisma/client';
+import { useReportsStore } from '@/lib/store/dashboard/useReportsStore';
+import { useQuery } from '@tanstack/react-query';
+import axios, { AxiosError } from 'axios';
+import { toast } from 'sonner';
+import { format } from 'date-fns';
+import { PDFViewer } from '@react-pdf/renderer';
+import { FileX2 } from 'lucide-react';
+import { QueuingTicketReport } from '@/lib/types/prisma/queuingTicket';
+import { LoadingIndicator } from '@/components/custom/features/loading-indicator';
+import { StaffGenerateReportForm } from '@/components/custom/dashboard/reports/staff-generate-reports-form';
+import { SupervisorGenerateReportForm } from '@/components/custom/dashboard/reports/supervisor-generate-reports-form';
+import { SummaryReportOnQueuing } from '@/components/custom/dashboard/reports/pdf/summary-report-on-queuing';
+import { DetailedReportOnQueuing } from '@/components/custom/dashboard/reports/pdf/detailed-report-on-queuing';
 
 export default function Reports() {
   const { data: session } = useSession();
@@ -37,17 +37,17 @@ export default function Reports() {
     isFetching,
     isSuccess,
   } = useQuery<QueuingTicketReport, AxiosError>({
-    queryKey: ["reports", filters],
+    queryKey: ['reports', filters],
     queryFn: async (): Promise<QueuingTicketReport> => {
       const params: Record<string, string> = {};
       if (filters.userId) {
         params.userId = filters.userId;
       }
       if (filters.startDate) {
-        params.startDate = format(filters.startDate, "yyyy-MM-dd");
+        params.startDate = format(filters.startDate, 'yyyy-MM-dd');
       }
       if (filters.endDate) {
-        params.endDate = format(filters.endDate, "yyyy-MM-dd");
+        params.endDate = format(filters.endDate, 'yyyy-MM-dd');
       }
       if (filters.serviceType) {
         params.serviceTypeId = filters.serviceType;
@@ -58,7 +58,7 @@ export default function Reports() {
         { params }
       );
       if (response.data.tickets.length === 0) {
-        toast.info("Info", { description: "No data found" });
+        toast.info('Info', { description: 'No data found' });
         return {
           tickets: [],
           generatedBy: response.data.generatedBy,
@@ -66,8 +66,8 @@ export default function Reports() {
           approvedBy: response.data.approvedBy,
         };
       } else {
-        toast.success("Success", {
-          description: "Report generated successfully",
+        toast.success('Success', {
+          description: 'Report generated successfully',
         });
         return response.data;
       }
@@ -79,8 +79,8 @@ export default function Reports() {
 
   useEffect(() => {
     if (isFetching) {
-      toast.info("Generating report", {
-        description: "Your report is still generating",
+      toast.info('Generating report', {
+        description: 'Your report is still generating',
       });
     }
   }, [isFetching]);
@@ -132,12 +132,8 @@ export default function Reports() {
           <div className="flex-1 p-2" key={reportType}>
             {reportData && reportData.tickets.length > 0 ? (
               <PDFViewer width="100%" height="100%">
-                {reportType === "summary" ? (
-                  <SummaryReportOnQueuing
-                    reportData={reportData}
-                    startDate={reportStartDate}
-                    endDate={reportEndDate}
-                  />
+                {reportType === 'summary' ? (
+                  <SummaryReportOnQueuing reportData={reportData} startDate={reportStartDate} endDate={reportEndDate} />
                 ) : (
                   <DetailedReportOnQueuing
                     reportData={reportData}
