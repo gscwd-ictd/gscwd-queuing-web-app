@@ -28,11 +28,14 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { ServiceType } from '@/lib/types/prisma/serviceType';
+import { toZonedTime } from 'date-fns-tz';
 
 export function SupervisorGenerateReportForm() {
   const { setReportParams } = useReportsStore(); // Changed from setFilters
   const [openPersonnelSelect, setOpenPersonnelSelect] = useState(false);
   const [openServiceTypeSelect, setOpenServiceTypeSelect] = useState(false);
+
+  const TIMEZONE = 'Asia/Manila';
 
   const { data: personnel } = useQuery({
     queryKey: ['personnel-under-supervisor'],
@@ -226,7 +229,15 @@ export function SupervisorGenerateReportForm() {
                           mode="single"
                           selected={field.value}
                           onSelect={field.onChange}
-                          disabled={endDate ? (date) => isAfter(date, endDate) : undefined}
+                          disabled={(date) => {
+                            const manilaDate = toZonedTime(date, TIMEZONE);
+                            const manilaNow = toZonedTime(new Date(), TIMEZONE);
+                            const manilaToday = new Date(manilaNow);
+                            manilaToday.setHours(0, 0, 0, 0);
+
+                            // Disable if date is after today, but allow today
+                            return isAfter(manilaDate, manilaToday);
+                          }}
                         />
                       </PopoverContent>
                     </Popover>
