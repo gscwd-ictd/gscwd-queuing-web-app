@@ -112,7 +112,7 @@ export const authOptions: NextAuthOptions = {
             data: {
               userId: user.id,
               counterId: credentials.counterId,
-              expiresAt: addHours(new Date(), 8),
+              expiresAt: addHours(new Date(), 10), //! changed from 8 to 10
             },
           });
         }
