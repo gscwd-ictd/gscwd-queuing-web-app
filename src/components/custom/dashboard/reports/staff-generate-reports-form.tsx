@@ -29,8 +29,8 @@ import { useState } from 'react';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 
 export function StaffGenerateReportForm() {
-  const { setFilters } = useReportsStore();
-  const [open, setOpen] = useState(false);
+  const { setReportParams } = useReportsStore(); // Changed from setFilters
+  const [open, setOpen] = useState<boolean>(false);
 
   const { data: serviceTypes } = useQuery<ServiceType[]>({
     queryKey: ['get-all-service-types'],
@@ -70,21 +70,22 @@ export function StaffGenerateReportForm() {
   });
 
   const onSubmit = (data: z.infer<typeof staffReportFormSchema>) => {
-    setFilters({
+    // Validate required fields
+    if (!data.startDate || !data.endDate || !data.reportType) {
+      toast.error('Validation Error', {
+        description: 'Please fill in all required fields',
+      });
+      return;
+    }
+
+    // Set report parameters directly
+    setReportParams({
       startDate: data.startDate,
       endDate: data.endDate,
       reportType: data.reportType,
-      serviceType: data.serviceType === 'all' ? undefined : data.serviceType,
+      userId: undefined, // Staff users don't have userId filter
+      serviceTypeId: data.serviceType === 'all' ? undefined : data.serviceType,
     });
-
-    // form.reset({
-    //   startDate: undefined,
-    //   endDate: undefined,
-    //   reportType: undefined,
-    //   serviceType: undefined,
-    // });
-
-    //! removed reset on submit to retain data
   };
 
   const startDate = form.watch('startDate');

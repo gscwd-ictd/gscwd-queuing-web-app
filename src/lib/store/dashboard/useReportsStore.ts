@@ -1,81 +1,60 @@
-import { QueuingTicketReport } from "@/lib/types/prisma/queuingTicket";
-import { create } from "zustand";
+// lib/store/dashboard/useReportsStore.ts
+import { create } from 'zustand';
 
-type ReportsStore = {
+interface ReportParams {
+  startDate: Date;
+  endDate: Date;
+  reportType: 'summary' | 'detailed';
+  userId?: string;
+  serviceTypeId?: string;
+}
+
+interface ReportsStore {
+  // Keep filters for form state if needed
   filters: {
+    startDate?: Date;
+    endDate?: Date;
+    reportType?: 'summary' | 'detailed';
     userId?: string;
-    startDate: Date;
-    endDate: Date;
-    reportType: "detailed" | "summary" | null;
     serviceType?: string;
   };
-  setFilters: (filters: Partial<ReportsStore["filters"]>) => void;
+  // New: parameters for the current active report
+  reportParams: ReportParams | null;
+
+  // Actions
+  setFilters: (filters: Partial<ReportsStore['filters']>) => void;
   clearFilters: () => void;
-
-  reportData: QueuingTicketReport | null;
-  setReportData: (reportData: QueuingTicketReport | null) => void;
-  reportStartDate: Date;
-  setReportStartDate: (reportStartDate: Date) => void;
-  reportEndDate: Date;
-  setReportEndDate: (reportEndDate: Date) => void;
-  serviceType?: string;
-  setServiceType?: (serviceType: string) => void;
-
-  reportType: "detailed" | "summary" | null;
-  setReportType: (reportType: "detailed" | "summary" | null) => void;
-};
+  setReportParams: (params: ReportParams) => void;
+  clearReportParams: () => void;
+}
 
 export const useReportsStore = create<ReportsStore>((set) => ({
   filters: {
-    startDate: new Date(),
-    endDate: new Date(),
-    reportType: null,
-    userId: "",
-    serviceType: "",
+    startDate: undefined,
+    endDate: undefined,
+    reportType: undefined,
+    userId: undefined,
+    serviceType: undefined,
   },
+  reportParams: null,
 
-  setFilters: (newFilters) => {
+  setFilters: (newFilters) =>
     set((state) => ({
       filters: { ...state.filters, ...newFilters },
-    }));
-  },
+    })),
 
-  clearFilters: () => {
+  clearFilters: () =>
     set({
       filters: {
-        startDate: new Date(),
-        endDate: new Date(),
-        reportType: null,
-        serviceType: "",
-        userId: "",
+        startDate: undefined,
+        endDate: undefined,
+        reportType: undefined,
+        userId: undefined,
+        serviceType: undefined,
       },
-    });
-  },
+    }),
 
-  reportData: null,
-  setReportData: (reportData: QueuingTicketReport | null) => {
-    set({
-      reportData: reportData,
-    });
-  },
+  setReportParams: (params) => set({ reportParams: params }),
 
-  reportStartDate: new Date(),
-  setReportStartDate: (reportStartDate: Date) => {
-    set({ reportStartDate });
-  },
-
-  reportEndDate: new Date(),
-  setReportEndDate: (reportEndDate: Date) => {
-    set({ reportEndDate });
-  },
-
-  reportType: null,
-  setReportType: (reportType: "detailed" | "summary" | null) => {
-    set({ reportType });
-  },
-
-  serviceType: "",
-  setServiceType: (serviceType: string) => {
-    set({ serviceType });
-  },
+  clearReportParams: () => set({ reportParams: null }),
 }));

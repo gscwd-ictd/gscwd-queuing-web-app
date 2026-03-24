@@ -31,16 +31,20 @@ export const authOptions: NextAuthOptions = {
   events: {
     async signOut({ token }) {
       if (token.id && token.counterId) {
-        await prisma.userSession.delete({
-          where: { userId: token.id, counterId: token.counterId },
+        // Delete the current counter session (even if not expired)
+        await prisma.userSession.deleteMany({
+          where: {
+            userId: token.id,
+            counterId: token.counterId,
+          },
         });
       }
 
-      // recently added clean up session upon logout for this user
+      // Delete any other expired sessions for this user
       await prisma.userSession.deleteMany({
         where: {
           userId: token.id,
-          expiresAt: { lt: new Date() }, // Delete expired sessions
+          expiresAt: { lt: new Date() },
         },
       });
     },

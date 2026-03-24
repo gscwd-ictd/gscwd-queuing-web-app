@@ -30,7 +30,7 @@ import {
 import { ServiceType } from '@/lib/types/prisma/serviceType';
 
 export function SupervisorGenerateReportForm() {
-  const { setFilters } = useReportsStore();
+  const { setReportParams } = useReportsStore(); // Changed from setFilters
   const [openPersonnelSelect, setOpenPersonnelSelect] = useState(false);
   const [openServiceTypeSelect, setOpenServiceTypeSelect] = useState(false);
 
@@ -96,22 +96,22 @@ export function SupervisorGenerateReportForm() {
   });
 
   const onSubmit = (data: z.infer<typeof supervisorReportFormSchema>) => {
-    setFilters({
-      userId: data.userId === 'all' ? undefined : data.userId,
+    // Validate required fields
+    if (!data.startDate || !data.endDate || !data.reportType) {
+      toast.error('Validation Error', {
+        description: 'Please fill in all required fields',
+      });
+      return;
+    }
+
+    // Set report parameters directly
+    setReportParams({
       startDate: data.startDate,
       endDate: data.endDate,
       reportType: data.reportType,
-      serviceType: data.serviceType === 'all' ? undefined : data.serviceType,
+      userId: data.userId === 'all' ? undefined : data.userId,
+      serviceTypeId: data.serviceType === 'all' ? undefined : data.serviceType,
     });
-
-    // form.reset({
-    //   userId: 'all',
-    //   startDate: undefined,
-    //   endDate: undefined,
-    //   reportType: undefined,
-    //   serviceType: '',
-    // });
-    //! removed form reset to retain after submit
   };
 
   const startDate = form.watch('startDate');
