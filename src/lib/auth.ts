@@ -17,11 +17,13 @@ type User = PrismaUser & {
   counterId?: string;
 };
 
+const SESSION_HOURS = 11;
+
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   session: {
     strategy: 'jwt',
-    maxAge: 10 * 60 * 60,
+    maxAge: SESSION_HOURS * 60 * 60,
     updateAge: 60 * 60,
   },
   secret: process.env.NEXTAUTH_SECRET,
@@ -112,7 +114,7 @@ export const authOptions: NextAuthOptions = {
             data: {
               userId: user.id,
               counterId: credentials.counterId,
-              expiresAt: addHours(new Date(), 10),
+              expiresAt: addHours(new Date(), SESSION_HOURS),
             },
           });
         }
