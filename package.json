@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev --port 1337",
     "build": "prisma generate && next build",
-    "start": "next start --port 1338",
+    "start": "next start --port 1337",
     "lint": "next lint",
     "knip": "knip"
   },

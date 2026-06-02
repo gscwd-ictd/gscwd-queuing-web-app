@@ -6,7 +6,7 @@ import { format, intervalToDuration } from 'date-fns';
 import { QueuingTicketReport } from '@/lib/types/prisma/queuingTicket';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { FunctionComponent, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Spinner } from '@/components/ui/spinner'; // Adjust import based on your spinner component
 
 Font.registerHyphenationCallback((word) => [word]);

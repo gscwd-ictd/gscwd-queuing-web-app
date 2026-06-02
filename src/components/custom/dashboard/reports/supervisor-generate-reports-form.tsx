@@ -118,7 +118,6 @@ export function SupervisorGenerateReportForm() {
   };
 
   const startDate = form.watch('startDate');
-  const endDate = form.watch('endDate');
 
   return (
     <Form {...form}>

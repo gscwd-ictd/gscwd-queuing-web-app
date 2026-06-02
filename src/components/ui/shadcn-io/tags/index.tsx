@@ -13,19 +13,8 @@ import {
 } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from '@/components/ui/command';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 
 type TagsContextType = {
@@ -41,7 +30,7 @@ const TagsContext = createContext<TagsContextType>({
   value: undefined,
   setValue: undefined,
   open: false,
-  onOpenChange: () => { },
+  onOpenChange: () => {},
   width: undefined,
   setWidth: undefined,
 });
@@ -97,9 +86,7 @@ export const Tags = ({
   }, []);
 
   return (
-    <TagsContext.Provider
-      value={{ value, setValue, open, onOpenChange, width, setWidth }}
-    >
+    <TagsContext.Provider value={{ value, setValue, open, onOpenChange, width, setWidth }}>
       <Popover onOpenChange={onOpenChange} open={open}>
         <div className={cn('relative w-full', className)} ref={ref}>
           {children}
@@ -111,11 +98,7 @@ export const Tags = ({
 
 export type TagsTriggerProps = ComponentProps<typeof Button>;
 
-export const TagsTrigger = ({
-  className,
-  children,
-  ...props
-}: TagsTriggerProps) => (
+export const TagsTrigger = ({ className, children, ...props }: TagsTriggerProps) => (
   <PopoverTrigger asChild>
     <Button
       className={cn('h-auto w-full justify-between p-2', className)}
@@ -126,9 +109,7 @@ export const TagsTrigger = ({
     >
       <div className="flex flex-wrap items-center gap-1">
         {children}
-        <span className="px-2 py-px text-muted-foreground">
-          Select a tag...
-        </span>
+        <span className="px-2 py-px text-muted-foreground">Select a tag...</span>
       </div>
     </Button>
   </PopoverTrigger>
@@ -136,12 +117,7 @@ export const TagsTrigger = ({
 
 export type TagsValueProps = ComponentProps<typeof Badge>;
 
-export const TagsValue = ({
-  className,
-  children,
-  onRemove,
-  ...props
-}: TagsValueProps & { onRemove?: () => void }) => {
+export const TagsValue = ({ className, children, onRemove, ...props }: TagsValueProps & { onRemove?: () => void }) => {
   const handleRemove: MouseEventHandler<HTMLDivElement> = (event) => {
     event.preventDefault();
     event.stopPropagation();
@@ -154,10 +130,7 @@ export const TagsValue = ({
       {onRemove && (
         // biome-ignore lint/a11y/noStaticElementInteractions: "This is a clickable badge"
         // biome-ignore lint/a11y/useKeyWithClickEvents: "This is a clickable badge"
-        <div
-          className="size-auto cursor-pointer hover:text-muted-foreground"
-          onClick={handleRemove}
-        >
+        <div className="size-auto cursor-pointer hover:text-muted-foreground" onClick={handleRemove}>
           <XIcon size={12} />
         </div>
       )}
@@ -167,19 +140,11 @@ export const TagsValue = ({
 
 export type TagsContentProps = ComponentProps<typeof PopoverContent>;
 
-export const TagsContent = ({
-  className,
-  children,
-  ...props
-}: TagsContentProps) => {
+export const TagsContent = ({ className, children, ...props }: TagsContentProps) => {
   const { width } = useTagsContext();
 
   return (
-    <PopoverContent
-      className={cn('p-0', className)}
-      style={{ width }}
-      {...props}
-    >
+    <PopoverContent className={cn('p-0', className)} style={{ width }} {...props}>
       <Command>{children}</Command>
     </PopoverContent>
   );
@@ -200,12 +165,10 @@ export const TagsList = ({ className, ...props }: TagsListProps) => (
 export type TagsEmptyProps = ComponentProps<typeof CommandEmpty>;
 
 export const TagsEmpty = ({
-  children,
+  children, // eslint-disable-next-line @typescript-eslint/no-unused-vars
   className,
   ...props
-}: TagsEmptyProps) => (
-  <CommandEmpty {...props}>{children ?? 'No tags found.'}</CommandEmpty>
-);
+}: TagsEmptyProps) => <CommandEmpty {...props}>{children ?? 'No tags found.'}</CommandEmpty>;
 
 export type TagsGroupProps = ComponentProps<typeof CommandGroup>;
 
@@ -214,8 +177,5 @@ export const TagsGroup = CommandGroup;
 export type TagsItemProps = ComponentProps<typeof CommandItem>;
 
 export const TagsItem = ({ className, ...props }: TagsItemProps) => (
-  <CommandItem
-    className={cn('cursor-pointer items-center justify-between', className)}
-    {...props}
-  />
+  <CommandItem className={cn('cursor-pointer items-center justify-between', className)} {...props} />
 );
