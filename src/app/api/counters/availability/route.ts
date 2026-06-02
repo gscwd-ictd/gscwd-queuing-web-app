@@ -1,4 +1,4 @@
-// app/api/counters/availability/route.ts
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 

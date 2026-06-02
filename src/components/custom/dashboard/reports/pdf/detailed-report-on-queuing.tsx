@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
 import { Document, Page, Text, View, StyleSheet, Font, pdf } from '@react-pdf/renderer';
