@@ -1,8 +1,7 @@
-"use client";
+'use client';
 
-import { WelcomeScreen } from "./welcome-screen";
-import { Step1Form } from "./step-1-form";
-import { useKioskFormStore } from "@/lib/store/kiosk/useKioskFormStore";
+import { Step1Form } from './step-1-form';
+import { useKioskFormStore } from '@/lib/store/kiosk/useKioskFormStore';
 
 export function KioskStepsForm() {
   const { currentStep } = useKioskFormStore();

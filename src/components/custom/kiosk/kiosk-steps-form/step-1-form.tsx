@@ -1,48 +1,35 @@
-"use client";
+'use client';
 
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-} from "@/components/ui/form";
-import { step1Schema } from "@/lib/schemas/kiosk/kioskFormSchema";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { transactionOptions } from "@/lib/constants/kiosk/transactionOptions";
-import { Button } from "@/components/ui/button";
-import { ArrowRight, CheckIcon } from "lucide-react";
-import { useEffect, useState } from "react";
-import { KioskSubmitSuccess } from "../kiosk-submit-success";
-import axios from "axios";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { KioskSubmitPending } from "../kiosk-submit-pending";
-import { KioskSubmitError } from "../kiosk-submit-error";
-import { toast } from "sonner";
-import { KioskConfirmPaymentTransaction } from "../kiosk-confirm-payment-transaction";
-import { useSocket } from "@/components/providers/socket-provider";
-import { printTicket } from "@/lib/functions/kiosk/printTicket";
-import { Input } from "@/components/ui/input";
-import { useKioskFormStore } from "@/lib/store/kiosk/useKioskFormStore";
-import { GeneratedQueuingTicket } from "@/lib/types/prisma/queuingTicket";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
-import { KioskStepsFormHeader } from "./kiosk-steps-form-header";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } from '@/components/ui/form';
+import { step1Schema } from '@/lib/schemas/kiosk/kioskFormSchema';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { transactionOptions } from '@/lib/constants/kiosk/transactionOptions';
+import { Button } from '@/components/ui/button';
+import { ArrowRight } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { KioskSubmitSuccess } from '../kiosk-submit-success';
+import axios from 'axios';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { KioskSubmitPending } from '../kiosk-submit-pending';
+import { KioskSubmitError } from '../kiosk-submit-error';
+import { toast } from 'sonner';
+import { KioskConfirmPaymentTransaction } from '../kiosk-confirm-payment-transaction';
+import { useSocket } from '@/components/providers/socket-provider';
+import { printTicket } from '@/lib/functions/kiosk/printTicket';
+import { useKioskFormStore } from '@/lib/store/kiosk/useKioskFormStore';
+import { GeneratedQueuingTicket } from '@/lib/types/prisma/queuingTicket';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
+import { KioskStepsFormHeader } from './kiosk-steps-form-header';
 
 type Step1FormValues = z.infer<typeof step1Schema>;
 
-const createQueuingTicket = async (
-  formData: Partial<GeneratedQueuingTicket>
-) => {
-  const response = await axios.post(
-    `${process.env.NEXT_PUBLIC_HOST}/api/queuing-tickets`,
-    formData
-  );
+const createQueuingTicket = async (formData: Partial<GeneratedQueuingTicket>) => {
+  const response = await axios.post(`${process.env.NEXT_PUBLIC_HOST}/api/queuing-tickets`, formData);
   return response.data;
 };
 
@@ -54,7 +41,6 @@ export function Step1Form() {
   const { socket } = useSocket();
 
   const {
-    previousStep,
     resetForm,
     queuingTicket,
     setQueuingTicket,
@@ -73,7 +59,7 @@ export function Step1Form() {
 
       if (!socket) return;
 
-      socket.emit("ticket-created", {
+      socket.emit('ticket-created', {
         id: ticketData.id,
         number: ticketData.number,
         position: ticketData.position,
@@ -87,10 +73,7 @@ export function Step1Form() {
         },
       });
 
-      const queriesToInvalidate = [
-        ["get-all-regular-queuing-tickets"],
-        ["get-all-special-lane-queuing-tickets"],
-      ];
+      const queriesToInvalidate = [['get-all-regular-queuing-tickets'], ['get-all-special-lane-queuing-tickets']];
 
       queriesToInvalidate.forEach((queryKey) => {
         queryClient.invalidateQueries({ queryKey });
@@ -98,7 +81,7 @@ export function Step1Form() {
     },
     onError: (error) => {
       setError(true);
-      toast.error("Error", {
+      toast.error('Error', {
         description: error.message,
       });
     },
@@ -107,7 +90,7 @@ export function Step1Form() {
   const form = useForm<z.infer<typeof step1Schema>>({
     resolver: zodResolver(step1Schema),
     defaultValues: {
-      transaction: { id: "" },
+      transaction: { id: '' },
       isPrioritized: false,
     },
   });
@@ -124,11 +107,9 @@ export function Step1Form() {
   }
 
   const handleTransactionChange = (value: string) => {
-    form.setValue("transaction.id", value);
-    const selectedOption = transactionOptions.find(
-      (option) => option.id === value
-    );
-    if (selectedOption?.name === "Payment") {
+    form.setValue('transaction.id', value);
+    const selectedOption = transactionOptions.find((option) => option.id === value);
+    if (selectedOption?.name === 'Payment') {
       setShowPaymentTransactionConfirmation(true);
     }
   };
@@ -136,7 +117,7 @@ export function Step1Form() {
   useEffect(() => {
     if (success) {
       form.reset({
-        transaction: { id: "" },
+        transaction: { id: '' },
         isPrioritized: false,
       });
 
@@ -153,20 +134,12 @@ export function Step1Form() {
 
   return (
     <>
-      {isPending ? (
-        <KioskSubmitPending open={pending} onOpenChange={setPending} />
-      ) : null}
+      {isPending ? <KioskSubmitPending open={pending} onOpenChange={setPending} /> : null}
 
-      {isError ? (
-        <KioskSubmitError open={error} onOpenChange={setError} />
-      ) : null}
+      {isError ? <KioskSubmitError open={error} onOpenChange={setError} /> : null}
 
       {success && queuingTicket ? (
-        <KioskSubmitSuccess
-          open={success}
-          onOpenChange={setSuccess}
-          data={queuingTicket}
-        />
+        <KioskSubmitSuccess open={success} onOpenChange={setSuccess} data={queuingTicket} />
       ) : null}
 
       <KioskConfirmPaymentTransaction
@@ -193,9 +166,7 @@ export function Step1Form() {
                     render={({ field }) => (
                       <FormItem className="flex flex-col gap-10 w-full justify-between">
                         <div className="flex flex-col mb-2 gap-4">
-                          <FormLabel className="text-8xl font-bold">
-                            Transaction
-                          </FormLabel>
+                          <FormLabel className="text-8xl font-bold">Transaction</FormLabel>
                           <div className="flex flex-col gap-2 w-full">
                             <FormDescription className="text-gray-600 dark:text-white text-4xl">
                               Select the transaction that you want to avail
@@ -215,27 +186,16 @@ export function Step1Form() {
                               transactionOptions.map((option) => (
                                 <FormItem key={option.id}>
                                   <FormControl>
-                                    <RadioGroupItem
-                                      value={option.id}
-                                      className="sr-only peer"
-                                      id={option.name}
-                                    />
+                                    <RadioGroupItem value={option.id} className="sr-only peer" id={option.name} />
                                   </FormControl>
                                   <FormLabel
                                     htmlFor={option.name}
                                     className="w-full border border-gray-400 bg-white rounded-md cursor-pointer peer-data-[state=checked]:bg-primary peer-data-[state=checked]:text-white transition-colors h-48 p-12 dark:peer-data-[state=checked]:bg-blue-800 flex flex-row items-center gap-12 shadow-md"
                                   >
-                                    <option.icon
-                                      className="w-36 h-36"
-                                      strokeWidth={1}
-                                    />
+                                    <option.icon className="w-36 h-36" strokeWidth={1} />
                                     <div className="flex flex-col gap-3">
-                                      <p className="text-5xl font-bold">
-                                        {option.name}
-                                      </p>
-                                      <p className="italic font-normal text-4xl">
-                                        {option.translation}
-                                      </p>
+                                      <p className="text-5xl font-bold">{option.name}</p>
+                                      <p className="italic font-normal text-4xl">{option.translation}</p>
                                     </div>
                                   </FormLabel>
                                 </FormItem>
@@ -257,9 +217,9 @@ export function Step1Form() {
                       <FormItem>
                         <Label
                           className={cn(
-                            "flex flex-row w-full shadow-md cursor-pointer bg-white items-center gap-12 rounded-lg p-10 border-2 border-gray-300 transition",
-                            "hover:bg-accent/50 has-[[aria-checked=true]]:border-blue-600 has-[[aria-checked=true]]:bg-blue-50",
-                            "dark:has-[[aria-checked=true]]:border-blue-900 dark:has-[[aria-checked=true]]:bg-blue-950"
+                            'flex flex-row w-full shadow-md cursor-pointer bg-white items-center gap-12 rounded-lg p-10 border-2 border-gray-300 transition',
+                            'hover:bg-accent/50 has-[[aria-checked=true]]:border-blue-600 has-[[aria-checked=true]]:bg-blue-50',
+                            'dark:has-[[aria-checked=true]]:border-blue-900 dark:has-[[aria-checked=true]]:bg-blue-950'
                           )}
                         >
                           <FormControl>
@@ -284,7 +244,7 @@ export function Step1Form() {
                   />
                 </div>
                 <Button
-                  variant={"default"}
+                  variant={'default'}
                   className="w-full h-48 justify-start items-center p-4 gap-6"
                   type="submit"
                   disabled={isPending}
