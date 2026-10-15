@@ -306,9 +306,7 @@ export function SupervisorGenerateReportForm() {
                           <SelectGroup>
                             <SelectLabel>Report</SelectLabel>
                             <SelectItem value="detailed">Detailed Report on Queuing</SelectItem>
-                            {/* <SelectItem value="summary">
-                            Summary Report on Queuing
-                          </SelectItem> */}
+                            <SelectItem value="summary">Summary Report on Queuing</SelectItem>
                           </SelectGroup>
                         </SelectContent>
                       </Select>
